@@ -1,2 +1,4 @@
 opencv-python==4.11.0.86
 label-studio>=1.17.0
+polars==1.26.0
+matplotlib==3.10.1
