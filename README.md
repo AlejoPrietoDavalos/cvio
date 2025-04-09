@@ -1,3 +1,9 @@
+### label-studio
+```bash
+# Para arrancar el servidor y labelear en http://localhost:8080.
+label-studio start
+```
+
 ### Demo
 - Stremear la webcam, si se da click en la imagen, guardar el frame en ese momento y en la posición donde se dió el click debe aparecer un punto rojo, y quizas un archivo csv para guardar nombre de la imagen, y posicion donde se dio el click. Para una demo.
 
