@@ -1,3 +1,5 @@
+<img src="measures.png" alt="measures.png" width="400"/><br>
+
 <img src="data/projected/001.jpg" alt="001.jpg" width="400"/>
 <img src="data/projected/002.jpg" alt="002.jpg" width="400"/>
 <img src="data/projected/003.jpg" alt="003.jpg" width="400"/>
