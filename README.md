@@ -1,4 +1,4 @@
-### Proyección de puntos en un video sobre el piso, dados puntos de referencia.
+### Mapeo de coordenadas de imagen al plano del piso usando puntos de referencia
 - Para la presente prueba de concepto omito la problemática de detectar a la persona, que se haría con algún modelo de visión, y simulo 1 solo frame del video sacando un screenshot y labeleando a mano la posición de los puntos de interés y de los gatos.
 1. Coloco una webcam en altura elevada, simulando una cámara de vigilancia.
 2. Coloco un cuadrado en el piso con cinta de papel, me servirá luego para determinar los puntos de referencia.
