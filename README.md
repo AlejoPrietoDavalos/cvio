@@ -1,3 +1,15 @@
+<img src="data/projected/001.jpg" alt="001.jpg" width="400"/>
+<img src="data/projected/002.jpg" alt="002.jpg" width="400"/>
+<img src="data/projected/003.jpg" alt="003.jpg" width="400"/>
+<img src="data/projected/004.jpg" alt="004.jpg" width="400"/>
+<img src="data/projected/005.jpg" alt="005.jpg" width="400"/>
+<img src="data/projected/006.jpg" alt="006.jpg" width="400"/>
+<img src="data/projected/007.jpg" alt="007.jpg" width="400"/>
+<img src="data/projected/008.jpg" alt="008.jpg" width="400"/>
+<img src="data/projected/009.jpg" alt="009.jpg" width="400"/>
+<img src="data/projected/010.jpg" alt="010.jpg" width="400"/>
+<img src="data/projected/011.jpg" alt="011.jpg" width="400"/>
+
 ### label-studio
 ```bash
 # Para arrancar el servidor y labelear en http://localhost:8080.
