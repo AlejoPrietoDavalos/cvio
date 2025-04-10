@@ -8,6 +8,9 @@
 6. Luego la utilizo para proyectar cualquier punto desde la imagen al plano real (por ejemplo, las patas del gato) usando `cv2.perspectiveTransform`.
 7. Finalmente exporto los resultados en `/data/projected`.
 
+### Demo
+- Stremear la webcam, si se da click en la imagen, guardar el frame en ese momento y en la posición donde se dió el click debe aparecer un punto rojo, y quizas un archivo csv para guardar nombre de la imagen, y posicion donde se dio el click. Para una demo.
+
 <img src="measures.png" alt="measures.png" width="400"/><br>
 
 <img src="data/projected/001.jpg" alt="001.jpg" width="400"/>
@@ -27,9 +30,6 @@
 # Para arrancar el servidor y labelear en http://localhost:8080.
 label-studio start
 ```
-
-### Demo
-- Stremear la webcam, si se da click en la imagen, guardar el frame en ese momento y en la posición donde se dió el click debe aparecer un punto rojo, y quizas un archivo csv para guardar nombre de la imagen, y posicion donde se dio el click. Para una demo.
 
 ### Ideas
 - Detector de changuitos, si es que no están trackeados con algún dispositivo.
