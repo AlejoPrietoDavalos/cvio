@@ -11,7 +11,7 @@
 ### Demo
 - Stremear la webcam, si se da click en la imagen, guardar el frame en ese momento y en la posición donde se dió el click debe aparecer un punto rojo, y quizas un archivo csv para guardar nombre de la imagen, y posicion donde se dio el click. Para una demo.
 
-<img src="measures.png" alt="measures.png" width="400"/><br>
+<img src="measures.png" alt="measures" width="400"/><br>
 
 <img src="data/projected/001.jpg" alt="001.jpg" width="400"/>
 <img src="data/projected/002.jpg" alt="002.jpg" width="400"/>
