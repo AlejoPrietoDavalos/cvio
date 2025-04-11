@@ -1,5 +1,6 @@
 from typing import Optional, List, Tuple
 from pathlib import Path
+from abc import ABC, abstractmethod
 
 import cv2
 import numpy as np
@@ -34,8 +35,8 @@ def obtain_keypoint(*, x1: int, y1: int, x2: int, y2: int) -> Tuple[int, int]:
     return cx, cy
 
 
-class WebcamYOLO:
-    def __init__(self, path_captures: Path) -> None:
+class BaseWebcamYOLO(ABC):
+    def __init__(self, *, path_captures: Path) -> None:
         self.path_captures = path_captures
         self.path_captures.mkdir(exist_ok=True)
         self.capture_count = 0
@@ -102,3 +103,9 @@ class WebcamYOLO:
 
         cap.release()
         cv2.destroyAllWindows()
+
+
+
+class WebcamYOLO(BaseWebcamYOLO):
+    def __init__(self, *, path_captures):
+        super().__init__(path_captures=path_captures)

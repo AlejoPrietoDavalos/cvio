@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from cvio.webcam import WebcamYOLO
+from cvio.webcam_yolo import WebcamYOLO
 
 def main():
     path_data = Path("data")
