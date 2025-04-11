@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 import cv2
 from cv2.typing import MatLike
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 from cvio.yolo import YOLOWrapper, BoxYOLO
 from cvio.typings import Color
@@ -41,10 +43,10 @@ class BaseWebcamYOLO(ABC):
         self.ref_points_arr: Optional[np.ndarray] = None
         self.drawing_enabled = True
 
-    def click_event(self, event, x: int, y: int, flags, param) -> None:
+    def add_reference_point(self, event, x: int, y: int, flags, param) -> None:
         if self.drawing_enabled and event == cv2.EVENT_LBUTTONDOWN:
             self.ref_points.append((x, y))
-            print(f"Referencia añadida: ({x}, {y})")
+            print(f"Adding reference point: ({x}, {y})")
             if len(self.ref_points) == LEN_LIST:
                 self.drawing_enabled = False
                 self.ref_points_arr = np.array(self.ref_points, dtype=np.float32)
@@ -76,7 +78,7 @@ class BaseWebcamYOLO(ABC):
             raise IOError("No se pudo acceder a la cámara")
 
         cv2.namedWindow(WEBCAM_TITLE)
-        cv2.setMouseCallback(WEBCAM_TITLE, self.click_event)
+        cv2.setMouseCallback(WEBCAM_TITLE, self.add_reference_point)        # TODO: Abstraer.
 
         self.running = True
         while self.running:
@@ -84,10 +86,10 @@ class BaseWebcamYOLO(ABC):
             if not ret:
                 break
 
-            self.process_frame(frame=frame)
+            combined = self.process_frame(frame=frame)
 
             # Se grafica la imagen.
-            cv2.imshow(WEBCAM_TITLE, frame)
+            cv2.imshow(WEBCAM_TITLE, combined)
 
             actions_key_pressed = {
                 "q": self.stop_running,
@@ -102,16 +104,65 @@ class BaseWebcamYOLO(ABC):
         cv2.destroyAllWindows()
 
     @abstractmethod
-    def process_frame(self, *, frame: MatLike) -> None:
+    def process_frame(self, *, frame: MatLike) -> np.ndarray:
         ...
+
+
+
+
+def render_opencv_plot(padding: int = 100) -> np.ndarray:
+    """Renderiza una imagen con el contorno de una sala ajustado automáticamente con padding y sistema de referencia invertido."""
+    room_outline = np.array([
+        [0, 375 + 33.5 + 50],
+        [0, 375 + 33.5],
+        [195, 375 + 33.5],
+        [195, 375],
+        [0, 375],
+        [0, 0],
+        [293, 0],
+        [293, 375],
+        [293 - 18, 375],
+        [293 - 18, 375 + 33.5],
+        [293 + 18.5, 375 + 33.5],
+        [293 + 18.5, 375 + 33.5 + 50]
+    ], dtype=np.float32)
+
+    scale = 3
+    outline_scaled = room_outline * scale
+
+    min_x = int(outline_scaled[:, 0].min())
+    max_x = int(outline_scaled[:, 0].max())
+    min_y = int(outline_scaled[:, 1].min())
+    max_y = int(outline_scaled[:, 1].max())
+
+    width = (max_x - min_x) + 2 * padding
+    height = (max_y - min_y) + 2 * padding
+
+    img = np.ones((height, width, 3), dtype=np.uint8) * 255
+
+    # Reajustar el contorno con el padding aplicado
+    offset = np.array([[padding - min_x, padding - min_y]])
+
+    # Flip en el eje Y (invertir el sistema de coordenadas)
+    flipped_outline = outline_scaled.copy()
+    flipped_outline[:, 1] = max_y - outline_scaled[:, 1]  # Invertir el eje Y
+
+    outline_translated = (flipped_outline + offset).astype(np.int32)
+
+    cv2.polylines(img, [outline_translated], isClosed=False, color=(0, 0, 255), thickness=2)
+
+    return img
+
+
 
 
 
 class WebcamYOLO(BaseWebcamYOLO):
     def __init__(self, *, path_captures):
         super().__init__(path_captures=path_captures)
+        self.plot_img = render_opencv_plot()
 
-    def process_frame(self, *, frame: MatLike) -> None:
+    def process_frame(self, *, frame: MatLike) -> np.ndarray:
         boxes_yolo = self.yolo_wrapper.detect_objects(frame=frame)
         for box_yolo in boxes_yolo:
             self.plot_box_yolo(frame=frame, box_yolo=box_yolo, color=GREEN)
@@ -122,3 +173,13 @@ class WebcamYOLO(BaseWebcamYOLO):
 
         for (x, y) in self.ref_points:
             cv2.circle(frame, (x, y), 5, YELLOW, -1)
+
+        # Resize del gráfico solo si es necesario
+        h1, w1 = frame.shape[:2]
+        plot_resized = self.plot_img
+        if self.plot_img.shape[0] != h1:
+            h2, w2 = self.plot_img.shape[:2]
+            plot_resized = cv2.resize(self.plot_img, (int(w2 * h1 / h2), h1))
+
+        combined = np.hstack((frame, plot_resized))
+        return combined
