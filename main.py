@@ -9,7 +9,7 @@ def main():
     path_captures = path_data / "captures"
     path_captures.mkdir(exist_ok=True)
 
-    vu = WebcamYOLO(path_captures)
+    vu = WebcamYOLO(path_captures=path_captures)
     vu.run_webcam()
 
 if __name__ == "__main__":
