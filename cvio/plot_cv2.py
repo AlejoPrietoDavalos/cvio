@@ -6,7 +6,7 @@ from cvio.typings import Color
 
 class PlotCV2:
     @staticmethod
-    def point(*, frame: MatLike, x: int, y: int, color: Color, radius: int = 6) -> None:
+    def circle(*, frame: MatLike, x: int, y: int, color: Color, radius: int = 6) -> None:
         cv2.circle(frame, (x, y), radius, color, -1)    # TODO: shift -1, para que sirve?
 
     @staticmethod

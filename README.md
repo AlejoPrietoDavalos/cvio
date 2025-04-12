@@ -28,7 +28,9 @@ label-studio start
 
 ### Ideas
 - Detector de changuitos, si es que no están trackeados con algún dispositivo.
-
+- A cada frame clasificar desde que ángulo se toma la imagen (frente, izquierda, derecha, atrás, etc..)
+- Pose detection, y key_points.
+- Obtener altura del objeto.
 
 ### Ver que pasa si:
 - Los pies son tapados en la imagen.
