@@ -4,3 +4,4 @@ polars==1.26.0
 matplotlib==3.10.1
 pydantic==2.11.2
 ultralytics==8.3.105
+moviepy-2.1.2
