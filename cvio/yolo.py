@@ -1,7 +1,8 @@
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+import numpy as np
 from ultralytics import YOLO
 from ultralytics.engine.results import Results
 from cv2.typing import MatLike
@@ -13,6 +14,14 @@ class BoxYOLO(BaseModel):
     y1: int
     x2: int
     y2: int
+    id: Optional[int] = None
+    score: float | None = None
+    cx_proj: Optional[float] = None
+    cy_proj: Optional[float] = None
+    embedding: Optional[np.ndarray] = None
+    reid: Optional[int] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @property
     def cx(self) -> int:

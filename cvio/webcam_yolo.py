@@ -18,6 +18,22 @@ from cvio.plot_cv2 import PlotCV2
 #"yolov8m.pt"
 #"yolov8l.pt"
 #"yolov8x.pt"
+#{
+#    0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train',
+#    7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign',
+#    12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep',
+#    19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack',
+#    25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis',
+#    31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove',
+#    36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass',
+#    41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple',
+#    48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza',
+#    54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed',
+#    60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote',
+#    66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink',
+#    72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear',
+#    78: 'hair drier', 79: 'toothbrush'
+#}
 PATH_MODEL = Path("data/yolov8l.pt")
 WEBCAM_TITLE = "Webcam"
 NUM_POINTS_REF = 10                              # FIXME: Deshardcodear.
@@ -27,12 +43,40 @@ GREEN = (0, 255, 0)
 YELLOW = (0, 255, 255)
 BLUE = (255, 0, 0)
 
+
+def plot_box_yolo(*, frame: MatLike, box_yolo: BoxYOLO, color: Color) -> None:
+    PlotCV2.box(
+        frame=frame,
+        label=f"id={box_yolo.id} - {box_yolo.label}",
+        x1=box_yolo.x1,
+        y1=box_yolo.y1,
+        x2=box_yolo.x2,
+        y2=box_yolo.y2,
+        color=color
+    )
+
+def plot_boxes_yolo(
+        *,
+        frame: MatLike,
+        boxes_yolo: List[BoxYOLO],
+        color_box: Color,
+        color_keypoint: Color = None,
+        radius: int = 6
+) -> None:
+    for box_yolo in boxes_yolo:
+        # Dibuja las cajas de los objetos detectados.
+        plot_box_yolo(frame=frame, box_yolo=box_yolo, color=color_box)
+
+        # Dibuja los key_points de las cajas.
+        if color_keypoint is not None:
+            PlotCV2.circle(frame=frame, x=box_yolo.cx, y=box_yolo.cy, color=color_keypoint, radius=radius)
+
+
+
+
 def get_key_pressed() -> Optional[str]:
     key = cv2.waitKey(1) & 0xFF
     return chr(key) if key != 255 else None
-
-
-
 
 
 class BaseWebcamYOLO(ABC):
@@ -49,29 +93,10 @@ class BaseWebcamYOLO(ABC):
         self.boxes_yolo_list: List[List[BoxYOLO]] = []
 
         self.points_ref_list: List[Tuple[int, int]] = []
-        #points_real = np.array([
-        #    [275, 375],             # P1
-        #    [62.5, 273],            # P2
-        #    [126.5, 273],           # P3
-        #    [126.5, 213]            # P4
-        #], dtype=np.float32)
-        #points_ref = np.array(self.points_ref_list, dtype=np.float32)
-        #self.homography = Homography(points_real=points_real, points_ref=points_ref)
 
     def add_reference_point(self, event, x: int, y: int, flags, param) -> None:
-        if event == cv2.EVENT_LBUTTONDOWN and len(self.boxes_yolo_list) < NUM_POINTS_REF:
+        if event == cv2.EVENT_LBUTTONDOWN and len(self.points_ref_list) < NUM_POINTS_REF:
             self.points_ref_list.append((x, y))
-
-    def plot_box_yolo(self, *, frame: MatLike, box_yolo: BoxYOLO, color: Color) -> None:
-        PlotCV2.box(
-            frame=frame,
-            label=box_yolo.label,
-            x1=box_yolo.x1,
-            y1=box_yolo.y1,
-            x2=box_yolo.x2,
-            y2=box_yolo.y2,
-            color=color
-        )
 
     def stop_running(self, *, frame: MatLike) -> None:
         self.running = False
@@ -106,15 +131,13 @@ class BaseWebcamYOLO(ABC):
             print(f"[INFO] Video guardado: {path_video}")
 
             # Guardar boxes_yolo en JSON
-            boxes_json_list = [[box.model_dump() for box in boxes_yolo] for boxes_yolo in self.boxes_yolo_list]
-            path_boxes = self.path_captures / f"{now_str}.json"
-            with open(path_boxes, "w") as f:
-                json.dump({"points_ref_list": self.points_ref_list, "boxes_json_list": boxes_json_list}, f)
+            path_points_ref = self.path_captures / f"{now_str}.json"
+            with open(path_points_ref, "w") as f:
+                json.dump(self.points_ref_list, f)
 
             # Limpio ejecución anterior.
             self.frames_to_save.clear()
-            self.boxes_yolo_list.clear()
-            print(f"[INFO] Detecciones guardadas: {path_boxes}")
+            print(f"[INFO] Detecciones guardadas: {path_points_ref}")
 
     def run_webcam(self) -> None:
         cap = cv2.VideoCapture(0)
@@ -131,7 +154,11 @@ class BaseWebcamYOLO(ABC):
                 break
 
             # Se grafica la imagen.
+            if self.recording:
+                self.frames_to_save.append(frame.copy())
+            
             self.process_frame(frame=frame)
+            
             cv2.imshow(WEBCAM_TITLE, frame)
 
             # Se verifican las presiones de teclas.
@@ -147,44 +174,6 @@ class BaseWebcamYOLO(ABC):
 
 
 
-def _process_frame_plot(self, *, frame: MatLike, boxes_yolo: List[BoxYOLO]) -> None:
-    h1 = frame.shape[0]
-    h2, w2 = self.plot_img.shape[:2]
-    
-    # Si 'plot_resized' es None, lo inicializamos
-    if self.plot_resized is None:
-        self.plot_resized = np.ones_like(self.plot_img) * 255  # Crear una copia blanca de la imagen base
-    
-    # Redimensionar 'plot_img' al tamaño de la ventana de la cámara
-    self.plot_resized = cv2.resize(self.plot_img.copy(), (int(w2 * h1 / h2), h1))
-
-    if self.homography.H is None or not boxes_yolo:
-        return
-
-    points = np.array([[box_yolo.cx, box_yolo.cy] for box_yolo in boxes_yolo], dtype=np.float32)
-    projected = self.homography.project_points(points=points)
-
-    scale = 3
-    padding = 100
-    max_y = 458 * scale
-
-    # Asegúrate de que plot_resized es un np.ndarray adecuado para OpenCV
-    if self.plot_resized is None:
-        print("ERROR: plot_resized es None")
-        return
-
-    for idx, pt in enumerate(projected):
-        x, y = pt * scale
-        x += padding
-        y = max_y - y + padding
-        print(f"[INFO] Punto proyectado ajustado (plot): x={x:.2f}, y={y:.2f}")
-        
-        # Asegúrate de dibujar sobre la imagen numpy (en formato de imagen OpenCV)
-        PlotCV2.circle(frame=self.plot_resized, x=int(x), y=int(y), color=YELLOW, radius=6)
-
-        if idx == 0:
-            PlotCV2.circle(frame=self.plot_resized, x=int(x), y=int(y), color=BLUE, radius=10)
-
 
 
 class WebcamYOLO(BaseWebcamYOLO):
@@ -195,18 +184,8 @@ class WebcamYOLO(BaseWebcamYOLO):
         # Detecta los objetos.
         boxes_yolo = self.yolo_wrapper.detect_objects(frame=frame)
 
-        for box_yolo in boxes_yolo:
-            # Dibuja las cajas de los objetos detectados.
-            self.plot_box_yolo(frame=frame, box_yolo=box_yolo, color=GREEN)
-
-            # Dibuja los key_points de las cajas.
-            PlotCV2.circle(frame=frame, x=box_yolo.cx, y=box_yolo.cy, color=BLUE, radius=6)
+        plot_boxes_yolo(frame=frame, boxes_yolo=boxes_yolo, color_box=GREEN, color_keypoint=BLUE)
 
         # Dibuja los puntos de referencia..
         for (x, y) in self.points_ref_list:
             PlotCV2.circle(frame=frame, x=x, y=y, color=YELLOW, radius=6)
-        
-        if self.recording:
-            self.frames_to_save.append(frame.copy())
-            self.boxes_yolo_list.append(boxes_yolo)
-        return frame
