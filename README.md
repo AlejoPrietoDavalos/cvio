@@ -1,5 +1,4 @@
-### Mapeo de coordenadas de imagen al plano del piso usando puntos de referencia
-- Para la presente prueba de concepto omito la problemática de detectar a la persona, que se haría con algún modelo de visión, y simulo 1 solo frame del video sacando un screenshot y labeleando a mano la posición de los puntos de interés y de los gatos.
+### Detección de objetos + Referenciarlo en el plano del piso + Tracking.
 1. Coloco una webcam en altura elevada, simulando una cámara de vigilancia.
 2. Coloco un cuadrado en el piso con cinta de papel, me servirá luego para determinar los puntos de referencia.
 3. Armé un script para registrar el video de la webcam en tiempo real, y con la letra `c` se obtiene una captura de la imagen.
@@ -11,14 +10,8 @@
 ### Demo
 - Stremear la webcam, si se da click en la imagen, guardar el frame en ese momento y en la posición donde se dió el click debe aparecer un punto rojo, y quizas un archivo csv para guardar nombre de la imagen, y posicion donde se dio el click. Para una demo.
 
-<img src="measures.png" alt="measures" width="400"/><br>
+<img src="plots/measures_2.png" alt="measures_2" width="400"/><br>
 
-<img src="data/projected/002.jpg" alt="002.jpg" width="400"/>
-<img src="data/projected/003.jpg" alt="003.jpg" width="400"/>
-<img src="data/projected/004.jpg" alt="004.jpg" width="400"/>
-<img src="data/projected/005.jpg" alt="005.jpg" width="400"/>
-<img src="data/projected/006.jpg" alt="006.jpg" width="400"/>
-<img src="data/projected/007.jpg" alt="007.jpg" width="400"/>
 
 ### label-studio
 ```bash
@@ -27,10 +20,10 @@ label-studio start
 ```
 
 ### Ideas
-- Detector de changuitos, si es que no están trackeados con algún dispositivo.
 - A cada frame clasificar desde que ángulo se toma la imagen (frente, izquierda, derecha, atrás, etc..)
 - Pose detection, y key_points.
 - Obtener altura del objeto.
+- Keypoints, y sacar pose, ver si puedo sacar la manos y el cuerpo en la batería.
 
 ### Ver que pasa si:
 - Los pies son tapados en la imagen.
